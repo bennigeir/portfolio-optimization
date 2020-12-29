@@ -112,8 +112,8 @@ def update_ib():
 
 weekno = date.today().weekday()
 
-if weekno in [1,2,3,4,5]:
-    update_omx()
+# if weekno in [1,2,3,4,5]:
+    # update_omx()
     
-if weekno in [0,1,2,3,4]:    
-    update_ib()
+# if weekno in [0,1,2,3,4]:    
+    # update_ib()

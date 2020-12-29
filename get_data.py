@@ -25,9 +25,12 @@ def read_firebase(ticker):
     for key in res:
         l.append(list(res[key].values()))
     
-    out = pd.DataFrame(l, columns=[ticker, 'Date']).drop_duplicates()
+    out = pd.DataFrame(l, columns=[ticker, 'Date'])
 
-    return out
+    out[ticker] = out[ticker].astype(float)
+    out['Date'] = pd.to_datetime(out['Date'])
+
+    return out.drop_duplicates()
 
 
 def get_omx():
@@ -122,7 +125,7 @@ def get_is():
             is_df = temp_df
             first = False
         else:
-            is_df = pd.concat([is_df, temp_df[ticker]], axis=1, join="outer")
+            is_df = pd.merge(is_df, temp_df, on='Date', how='outer')
         
     is_df = is_df.set_index('Date').sort_index()
     
