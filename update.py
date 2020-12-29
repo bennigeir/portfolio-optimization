@@ -34,27 +34,59 @@ def update_omx():
 
 def update_ib():
     
-    base = 'https://www.islandssjodir.is/sjodir/skuldabrefasjodir/'
+    base1 = 'https://www.islandssjodir.is/sjodir/skuldabrefasjodir/'
+    base2 = 'https://www.islandssjodir.is/sjodir/hlutabrefasjodir/'
     
-    urls = ['is-lausafjarsafn',
+    urls1 = ['is-lausafjarsafn',
             'is-veltusafn',
             'is-rikissafn',
             'is-rikisskuldabref-medallong',
             'is-rikisskuldabref-long',
-            # 'is-skuldabrefasafn',
+            'is-skuldabrefasafn',
             'is-rikisskuldabref-overdtryggd',
             'is-sertryggd-skuldabref',
             'is-sertryggd-skuldabref-vtr',
             'is-graen-skuldabref-',
+            ]
+    
+    urls2 = [
             'is-hlutabrefasjodurinn',
             'is-urvalsvisitolusjodurinn',
             'is-heimssafn',
             'is-equus-hlutabref',
             ]
 
-    for url in urls:
+    for url in urls1:
 
-        html_content = requests.get(base + url).text
+        html_content = requests.get(base1 + url).text
+
+
+        soup = BeautifulSoup(html_content, "lxml")
+        
+        temp_price = soup.find("div", attrs={"class": "col-xs-6 fundbox__rate"}).text
+        temp_date = soup.find("div", attrs={"class": "col-xs-12 fundbox__rate-date text-right"}).text
+        
+        temp_price = temp_price.replace('.', '').replace(',', '.')
+        temp_date = temp_date.strip().replace('Gengi ', '')
+        
+        date = temp_date[6:] + '-' + temp_date[3:5] + '-' + temp_date[0:2]
+        price = temp_price
+
+        dsn = 'https://portfolio-optimization-33bbe-default-rtdb.firebaseio.com/'
+        fb = firebase.FirebaseApplication(dsn, None)
+        
+        data = {
+            'Date' : date,
+            'Close' : price
+            }
+            
+        fb.post('/ticker/' + url.upper(), data)
+        
+    
+    for url in urls2:
+
+        html_content = requests.get(base2 + url).text
+
 
         soup = BeautifulSoup(html_content, "lxml")
         

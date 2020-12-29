@@ -25,8 +25,8 @@ def read_firebase(ticker):
     for key in res:
         l.append(list(res[key].values()))
     
-    out = pd.DataFrame(l, columns=[ticker, 'Date']).set_index('Date').sort_index()
-    
+    out = pd.DataFrame(l, columns=[ticker, 'Date']).drop_duplicates()
+
     return out
 
 
@@ -104,21 +104,28 @@ def get_lb():
 
 def get_is():
     
-    is_df = pd.DataFrame()
+    first = True
     
     tickers = ['IS-LAUSAFJARSAFN', 'IS-VELTUSAFN', 'IS-RIKISSAFN',
                'IS-RIKISSKULDABREF-MEDALLONG', 'IS-RIKISSKULDABREF-LONG',
                'IS-RIKISSKULDABREF-OVERDTRYGGD', 'IS-SERTRYGGD-SKULDABREF',
-               # 'IS-SERTRYGGD-SKULDABREF-VTR', 'IS-GRAEN-SKULDABREF-',
-               # 'IS-HLUTABREFASJODURINN', 'IS-URVALSVISITOLUSJODURINN',
-               # 'IS-HEIMSSAFN', 'IS-EQUUS-HLUTABREF'
+               'IS-SERTRYGGD-SKULDABREF-VTR', 'IS-GRAEN-SKULDABREF-',
+               'IS-HLUTABREFASJODURINN', 'IS-URVALSVISITOLUSJODURINN',
+               'IS-HEIMSSAFN', 'IS-EQUUS-HLUTABREF'
                ]
     
     for ticker in tickers:
         
         temp_df = read_firebase(ticker)
-        is_df = pd.concat([is_df, temp_df], axis=1)
         
+        if first:
+            is_df = temp_df
+            first = False
+        else:
+            is_df = pd.concat([is_df, temp_df[ticker]], axis=1, join="outer")
+        
+    is_df = is_df.set_index('Date').sort_index()
+    
     return is_df
 
 
