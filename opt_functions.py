@@ -43,17 +43,30 @@ def get_returns(tickerlist, start_date, end_date):
                                    historical_datas[ticker]['adjclose'].shift())
         time_series_close[ticker] = historical_datas[ticker]['adjclose']
     return returns, time_series_close
-#%%
-ticker_list = ['arion.ic', 'brim.ic', 'eik.ic', 'eim.ic', 'festi.ic',
-               'haga.ic', 'iceair.ic', 'icesea.ic', 'kvika.ic',
-               'marel.ic', 'reginn.ic', 'reitir.ic','siminn.ic', 'sjova.ic',
-                'skel.ic', 'syn.ic', 'tm.ic', 'vis.ic']
-
-returns_train, hist_data_train = get_returns(ticker_list, "12/04/2017", "23/12/2019")
 
 #%%
 #Single financial intrument
 def portfolio_annualised_performance(weights, mean_returns, cov_matrix):
+    """
+    Calculate the annualized returns and risk for a portfolio with a set of weights
+
+    Parameters
+    ----------
+    weights : numpy array
+        Array with the weights for each instrument.
+    mean_returns : DataFrame
+        Dataframe with the returns for each intrument.
+    cov_matrix : DataFrame
+        The covariance matrix for the returns.
+
+    Returns
+    -------
+    std : float
+        Annualized standard deviation for the portfolio.
+    returns : float
+        Annualized return for the portfolio.
+
+    """
     returns = np.sum(mean_returns*weights ) *252
     std = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights))) * np.sqrt(252)
     return std, returns
@@ -61,10 +74,34 @@ def portfolio_annualised_performance(weights, mean_returns, cov_matrix):
 
 
 def random_portfolios(num_portfolios, mean_returns, cov_matrix, risk_free_rate):
+    """
+    Monte Carlo simulation of portfolio generation without allocation. 
+    Substitutes QP solvers.
+
+    Parameters
+    ----------
+    num_portfolios : int
+        Number of simulations.
+    mean_returns : DataFrame
+        Dataframe with the returns for each intrument.
+    cov_matrix : DataFrame
+        The covariance matrix for the returns.
+    risk_free_rate : float
+        The risk free rate at the given time (i.e. policy rates).
+
+    Returns
+    -------
+    results : numpy array
+        3d array that contains the annualized risk and return and the sharpe 
+        ratio for the simulated portfolio.
+    weights_record : numpy array
+        Array that stores the weights for the simulated portfolios.
+
+    """
     results = np.zeros((3,num_portfolios))
     weights_record = []
     for i in range(num_portfolios):
-        weights = np.random.random(len(returns_train.columns))
+        weights = np.random.random(len(mean_returns.columns))
         weights /= np.sum(weights)
         weights_record.append(weights)
         portfolio_std_dev, portfolio_return = portfolio_annualised_performance(weights, mean_returns, cov_matrix)
@@ -73,34 +110,27 @@ def random_portfolios(num_portfolios, mean_returns, cov_matrix, risk_free_rate):
         results[2,i] = (portfolio_return - risk_free_rate) / portfolio_std_dev
     return results, weights_record
 #%%
-cov_matrix = returns_train.cov()
-num_portfolios = 15000
-risk_free_rate = 0.03
+# cov_matrix = returns_train.cov()
+# num_portfolios = 15000
+# risk_free_rate = 0.03
 
-results_rand, weights_record_rand = random_portfolios(num_portfolios, returns_train.mean(), cov_matrix, risk_free_rate)
+# results_rand, weights_record_rand = random_portfolios(num_portfolios, returns_train.mean(), cov_matrix, risk_free_rate)
 
-#%%
+# #%%
 
-max_sharpe_idx = np.argmax(results_rand[2])
-sdp, rp = results_rand[0,max_sharpe_idx], results_rand[1,max_sharpe_idx]
-max_sharpe_allocation = pd.DataFrame(weights_record_rand[max_sharpe_idx],index=returns_train.columns,columns=['allocation'])
-# max_sharpe_allocation.allocation = [round(i*100,2)for i in max_sharpe_allocation.allocation]
-max_sharpe_allocation = max_sharpe_allocation.T
+# max_sharpe_idx = np.argmax(results_rand[2])
+# sdp, rp = results_rand[0,max_sharpe_idx], results_rand[1,max_sharpe_idx]
+# max_sharpe_allocation = pd.DataFrame(weights_record_rand[max_sharpe_idx],index=returns_train.columns,columns=['allocation'])
+# # max_sharpe_allocation.allocation = [round(i*100,2)for i in max_sharpe_allocation.allocation]
+# max_sharpe_allocation = max_sharpe_allocation.T
 
-print ("-"*80)
-print ("Maximum Sharpe Ratio Portfolio Allocation\n")
-print ("Annualised Return:", round(rp,2))
-print ("Annualised Volatility:", round(sdp,2))
-print ("\n")
-print (max_sharpe_allocation)
-#%%
-a = results_rand[0]
-b = results_rand[1]
+# print ("-"*80)
+# print ("Maximum Sharpe Ratio Portfolio Allocation\n")
+# print ("Annualised Return:", round(rp,2))
+# print ("Annualised Volatility:", round(sdp,2))
+# print ("\n")
+# print (max_sharpe_allocation)
 
-
-
-#%%
-returns_test, close_test = get_returns(ticker_list, "24/12/2019", "23/12/2020")
 
 #%% Construct a rebalancing method
 """
@@ -113,24 +143,9 @@ returns_test, close_test = get_returns(ticker_list, "24/12/2019", "23/12/2020")
 cost function could evaluate if the cost of changing the porfolio will pay
 
 """
-returns_train, hist_data_train = get_returns(ticker_list, "13/04/2017", "27/12/2019")
-
-
 
 #%% Construct penalized optimal portfolio
-"""
-One should have the option of choosing the distribution of instruments i.e. 30% stocks, 30% bonds, 40% currency
 
-"""
-funds = pd.read_excel('is_funds_28122020.xls')
-
-#%%
-ticker_list = ['brim.ic', 'eik.ic', 'eim.ic', 'festi.ic',
-               'haga.ic', 'iceair.ic', 'icesea.ic', 'kvika.ic',
-               'marel.ic', 'reginn.ic', 'reitir.ic','siminn.ic', 'sjova.ic',
-                'skel.ic', 'syn.ic', 'tm.ic', 'vis.ic']
-
-returns_train, hist_data_train = get_returns(ticker_list, "12/04/2017", "29/01/2020")
 
 #%%
 fx_list = ['ISK=X', 'GBPISK=X', 'EURISK=X', 'JPYISK=X', 'CHFISK=X',
@@ -138,19 +153,9 @@ fx_list = ['ISK=X', 'GBPISK=X', 'EURISK=X', 'JPYISK=X', 'CHFISK=X',
 
 fx_returns_train, fx_hist_data_train = get_returns(fx_list, "12/04/2017", "23/12/2019")
 
-#%%
-#Need to find a way to adress national holidays in iceland, for this time I just add some dates so the number of days match
-fund_return = pd.DataFrame()
-filt_funds = funds[(funds['DATE']>='12.04.2017') & (funds['DATE']<'31.01.2020')].drop(['DATE'],axis=1)
 
-for fund in filt_funds.columns:
-        print(fund)
-        fund_return[fund] = np.log(filt_funds[fund]/
-                                   filt_funds[fund].shift())
 
 #%%
-
-
 
 def pen_random_portfolios(num_simul, w1_ret, w2_ret, w3_ret, w1_allo, w2_allo, w3_allo, cov_mat, rf):
     results = np.zeros((3,num_simul))
@@ -184,93 +189,53 @@ def pen_random_portfolios(num_simul, w1_ret, w2_ret, w3_ret, w1_allo, w2_allo, w
 
 
 #%%
-con_col = pd.concat([returns_train.reset_index(drop=True),
-                fx_returns_train.reset_index(drop=True), 
-                fund_return.reset_index(drop=True)], axis=1)
+# con_col = pd.concat([returns_train.reset_index(drop=True),
+#                 fx_returns_train.reset_index(drop=True), 
+#                 fund_return.reset_index(drop=True)], axis=1)
 
-return_cov = con_col.cov()
+# return_cov = con_col.cov()
 
-#%%
-#cov verður input
-results_rand, weights_record_rand = pen_random_portfolios(15000, returns_train, fx_returns_train, 
-                               fund_return,0.4,0.3,0.3, return_cov, 0.03)
-
-#%%
-
-max_sharpe_idx = np.argmax(results_rand[2])
-sdp, rp = results_rand[0,max_sharpe_idx], results_rand[1,max_sharpe_idx]
-max_sharpe_allocation = pd.DataFrame(weights_record_rand[max_sharpe_idx],index=con_col.columns,columns=['allocation'])
-# max_sharpe_allocation.allocation = [round(i*100,2)for i in max_sharpe_allocation.allocation]
-max_sharpe_allocation = max_sharpe_allocation.T
-
-print ("-"*80)
-print ("Maximum Sharpe Ratio Portfolio Allocation\n")
-print ("Annualised Return:", round(rp,2))
-print ("Annualised Volatility:", round(sdp,2))
-print ("\n")
-print (max_sharpe_allocation)
+# #%%
+# #cov verður input
+# results_rand, weights_record_rand = pen_random_portfolios(15000, returns_train, fx_returns_train, 
+#                                fund_return,0.4,0.3,0.3, return_cov, 0.03)
 
 #%%
 
-#Páskar
-returns_date = returns_train.reset_index()['index']
-funds_date = funds[(funds['DATE']>='12.04.2017') & (funds['DATE']<'31.12.2019')]['DATE'].reset_index().drop(['index'],axis=1)
-fx_date = fx_returns_train.reset_index()['index']
+# max_sharpe_idx = np.argmax(results_rand[2])
+# sdp, rp = results_rand[0,max_sharpe_idx], results_rand[1,max_sharpe_idx]
+# max_sharpe_allocation = pd.DataFrame(weights_record_rand[max_sharpe_idx],index=con_col.columns,columns=['allocation'])
+# # max_sharpe_allocation.allocation = [round(i*100,2)for i in max_sharpe_allocation.allocation]
+# max_sharpe_allocation = max_sharpe_allocation.T
 
-for i in range(50,100):
-     a = funds_date.iloc[i]-returns_date.iloc[i]
-     print(i)
-     print(a)
+# print ("-"*80)
+# print ("Maximum Sharpe Ratio Portfolio Allocation\n")
+# print ("Annualised Return:", round(rp,2))
+# print ("Annualised Volatility:", round(sdp,2))
+# print ("\n")
+# print (max_sharpe_allocation)
 
-#80
-
-#%%
-# w1 = np.random.random(2)
-# w1 /= np.sum(w1)
-# w1 = w1 * 0.3
-
-
-# w2 = np.random.random(2)
-# w2 /= np.sum(w2)
-# w2 = w2 * 0.3
-
-
-# w3 = np.random.random(2)
-# w3 /= np.sum(w3)
-# w3 = w3 * 0.4
-
-
-# weights = np.concatenate([w1,w2,w3])
 
 #%%TEST
 #%%
 
-omx_test = get_data("LEQ.IC", "24/12/2019", "23/12/2020")
-omx_returns = np.log(omx_test['adjclose']/ omx_test['adjclose'].shift())
+# omx_test = get_data("LEQ.IC", "24/12/2019", "23/12/2020")
+# omx_returns = np.log(omx_test['adjclose']/ omx_test['adjclose'].shift())
 
 #%%
-port_returns = returns_test.dot(max_sharpe_allocation.T)
+# port_returns = returns_test.dot(max_sharpe_allocation.T)
 
 
-plt.plot(port_returns.cumsum())
-plt.plot(omx_returns.cumsum())
-plt.ylabel('RETURN')
-plt.title('OPT PORTFOLIO VS OMX10 (LEQ)')
-plt.legend(('Anal Bois', 'shitty market'),
-           loc='upper left')
+# plt.plot(port_returns.cumsum())
+# plt.plot(omx_returns.cumsum())
+# plt.ylabel('RETURN')
+# plt.title('OPT PORTFOLIO VS OMX10 (LEQ)')
+# plt.legend(('Anal Bois', 'shitty market'),
+#            loc='upper left')
 
 
 #%%
-"""
-Vigtuð summa til þess að neyða í ákveðið allocation
 
-"""
-
-weights1 = np.random.random(5)
-weights1 /= np.sum(weights1)*0.3
-
-weights2 = np.random.random(5)
-weights2 /= np.sum(weights2)*0.7
 
 
 # returns.mean()*252 annualize log returns
