@@ -50,9 +50,20 @@ stocks_returns_train = np.log(df_stocks_train/df_stocks_train.shift())
 is_return_trains = np.log(df_is_train/df_is_train.shift())
 
 
-cov_matrix = (pd.concat([iv_returns_train.reset_index(drop=True),
-                        stocks_returns_train.reset_index(drop=True), 
-                        is_return_trains.reset_index(drop=True)], axis=1)).cov()
+iv_returns_train.index = pd.to_datetime(iv_returns_train.index)
+stocks_returns_train.index = pd.to_datetime(stocks_returns_train.index)
+is_return_trains.index = pd.to_datetime(is_return_trains.index)
+
+train_returns = pd.merge(iv_returns_train, stocks_returns_train, on='Date', how='outer')
+train_returns = pd.merge(train_returns, is_return_trains, on='Date', how='outer')
+train_returns = train_returns.sort_index()
+
+# cov_matrix = (pd.concat([iv_returns_train.reset_index(drop=True),
+                        # stocks_returns_train.reset_index(drop=True), 
+                        # is_return_trains.reset_index(drop=True)], axis=1)).cov()
+cov_matrix = train_returns.cov()
+
+
 
 
 #%% PORTFOLIO GENERATION
@@ -121,23 +132,34 @@ df_iv_test = df_iv.loc['2018-12-01':'2020-12-01']
 df_stocks_test = df_stocks.loc['2018-12-01':'2020-12-01']
 df_is_test = df_is.loc['2018-12-01':'2020-12-01']
 
+omx_returns_test = df_omx_test.copy()
+omx_returns_test['LOG'] = np.log(df_omx_test['OMXI10']/df_omx_test['OMXI10'].shift())
+omx_returns_test = omx_returns_test.set_index(['Date'])
 
-omx_returns_test = np.log(df_omx_test['OMXI10']/df_omx_test['OMXI10'].shift()).reset_index(drop=True)
+# omx_returns_test = np.log(df_omx_test['OMXI10']/df_omx_test['OMXI10'].shift())#.reset_index(drop=True)
 iv_returns_test = np.log(df_iv_test/df_iv_test.shift())
 stocks_returns_test= np.log(df_stocks_test/df_stocks_test.shift())
 is_return_test = np.log(df_is_test/df_is_test.shift())
 
 #Reseta indexinn þangað til ég finn úr því hvernig ég get sameinað þá og þeir séu jafn langir
 #hugmynd að nota isin (iv_returns_test[iv_returns_test.index.isin(is_return_test.index)]) eitthvað sem svipar til þssa
-test_returns = (pd.concat([iv_returns_test.reset_index(drop=True),
-                           stocks_returns_test.reset_index(drop=True), 
-                           is_return_test.reset_index(drop=True)], axis=1))
+# test_returns = (pd.concat([iv_returns_test.reset_index(drop=True),
+                           # stocks_returns_test.reset_index(drop=True), 
+                           # is_return_test.reset_index(drop=True)], axis=1))
+
+iv_returns_test.index = pd.to_datetime(iv_returns_test.index)
+stocks_returns_test.index = pd.to_datetime(stocks_returns_test.index)
+is_return_test.index = pd.to_datetime(is_return_test.index)
+
+test_returns = pd.merge(iv_returns_test, stocks_returns_test, on='Date', how='outer')
+test_returns = pd.merge(test_returns, is_return_test, on='Date', how='outer')
+test_returns = test_returns.sort_index()
 
 
 port_returns = test_returns.dot(max_sharpe_allocation.T)
 
 plt.plot(port_returns.cumsum())
-plt.plot(omx_returns_test.cumsum())
+plt.plot(omx_returns_test['LOG'].cumsum())
 plt.ylabel('RETURN')
 plt.xlabel('TIME')
 plt.title('OPT PORTFOLIO VS OMXI10')

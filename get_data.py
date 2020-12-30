@@ -41,6 +41,8 @@ def get_omx():
 
 def get_iv():
     
+    first = True
+    
     urls = ['https://www.iv.is/is/sjodir/iv-sjodir/raw/11',
             'https://www.iv.is/is/sjodir/iv-sjodir/raw/10',
             'https://www.iv.is/is/sjodir/iv-sjodir/raw/9',
@@ -75,11 +77,13 @@ def get_iv():
         temp = pd.DataFrame(list(zip(date, price)), 
                        columns =['Date', title]) 
         
-        temp = temp.set_index('Date')
-        
-        iv = pd.concat([iv, temp], axis=1)
+        if first:
+            iv = temp
+            first = False
+        else:
+            iv = pd.merge(iv, temp, on='Date', how='outer')
     
-    return iv.sort_index()  
+    return iv.set_index('Date').sort_index()
 
 
 def get_stocks():
