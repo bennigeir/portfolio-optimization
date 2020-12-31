@@ -104,6 +104,22 @@ def get_stocks():
     
     return stocks_df
 
+def get_fx():
+    tickers = ['ISK=X', 'GBPISK=X', 'EURISK=X', 'JPYISK=X', 'CHFISK=X',
+               'DKKISK=X', 'NOKISK=X', 'SEKISK=X']
+
+    fx_df = pd.DataFrame() 
+    
+    for s in tickers:
+        
+        t = yf.Ticker(s)
+        t = t.history(period='max')['Close']
+        
+        temp_df = t.to_frame(name=s)
+        fx_df = pd.concat([fx_df, temp_df], axis=1)
+    
+    return fx_df
+
 
 def get_lb():
     pass
