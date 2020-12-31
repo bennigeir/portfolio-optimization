@@ -105,20 +105,31 @@ def get_stocks():
     return stocks_df
 
 def get_fx():
-    tickers = ['ISK=X', 'GBPISK=X', 'EURISK=X', 'JPYISK=X', 'CHFISK=X',
-               'DKKISK=X', 'NOKISK=X', 'SEKISK=X']
-
+    
+    url = 'https://www.sedlabanki.is/default.aspx?PageID=20f749ed-65bd-11e4-93f7-005056bc0bdb&dag1=1&man1=1&ar1=2015&dag2=31&man2=12&ar2=2020&AvgCheck=dags&Midgengi=on&Mynt9=USD&Mynt10=GBP&Mynt11=DKK&Mynt12=NOK&Mynt13=SEK&Mynt14=CHF&Mynt15=JPY&Mynt16=EUR&Lang=is'
+    
     fx_df = pd.DataFrame() 
     
-    for s in tickers:
-        
-        t = yf.Ticker(s)
-        t = t.history(period='max')['Close']
-        
-        temp_df = t.to_frame(name=s)
-        fx_df = pd.concat([fx_df, temp_df], axis=1)
+    html_content = requests.get(url).text
+
+    soup = BeautifulSoup(html_content, "lxml")
     
-    return fx_df
+    table = soup.find("table")
+    table_rows = table.find_all('tr')
+    
+    l = []
+    for tr in table_rows:
+        td = tr.find_all('td')
+        row = [tr.text.replace(',','.') for tr in td]
+        l.append(row)
+        
+    columns = ['Date','USD', 'GBP', 'DKK', 'NOK', 'SEK', 'CHF', 'JPY', 'EUR']
+    fx_df = pd.DataFrame(l, columns=columns)
+    
+    fx_df[columns[1:]] = fx_df[columns[1:]].astype(float)
+    fx_df['Date'] = pd.to_datetime(fx_df['Date'])
+    
+    return fx_df.dropna().set_index('Date').sort_index()
 
 
 def get_lb():
