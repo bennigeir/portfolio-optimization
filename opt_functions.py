@@ -110,27 +110,6 @@ def random_portfolios(num_portfolios, mean_returns, cov_matrix, risk_free_rate):
         results[2,i] = (portfolio_return - risk_free_rate) / portfolio_std_dev
     return results, weights_record
 #%%
-# cov_matrix = returns_train.cov()
-# num_portfolios = 15000
-# risk_free_rate = 0.03
-
-# results_rand, weights_record_rand = random_portfolios(num_portfolios, returns_train.mean(), cov_matrix, risk_free_rate)
-
-# #%%
-
-# max_sharpe_idx = np.argmax(results_rand[2])
-# sdp, rp = results_rand[0,max_sharpe_idx], results_rand[1,max_sharpe_idx]
-# max_sharpe_allocation = pd.DataFrame(weights_record_rand[max_sharpe_idx],index=returns_train.columns,columns=['allocation'])
-# # max_sharpe_allocation.allocation = [round(i*100,2)for i in max_sharpe_allocation.allocation]
-# max_sharpe_allocation = max_sharpe_allocation.T
-
-# print ("-"*80)
-# print ("Maximum Sharpe Ratio Portfolio Allocation\n")
-# print ("Annualised Return:", round(rp,2))
-# print ("Annualised Volatility:", round(sdp,2))
-# print ("\n")
-# print (max_sharpe_allocation)
-
 
 #%% Construct a rebalancing method
 """
@@ -143,17 +122,6 @@ def random_portfolios(num_portfolios, mean_returns, cov_matrix, risk_free_rate):
 cost function could evaluate if the cost of changing the porfolio will pay
 
 """
-
-#%% Construct penalized optimal portfolio
-
-
-#%%
-fx_list = ['ISK=X', 'GBPISK=X', 'EURISK=X', 'JPYISK=X', 'CHFISK=X',
-               'DKKISK=X', 'NOKISK=X']
-
-fx_returns_train, fx_hist_data_train = get_returns(fx_list, "12/04/2017", "23/12/2019")
-
-
 
 #%%
 
@@ -184,55 +152,6 @@ def pen_random_portfolios(num_simul, w1_ret, w2_ret, w3_ret, w1_allo, w2_allo, w
         results[1,i] = portfolio_return
         results[2,i] = (portfolio_return - rf) / portfolio_std_dev
     return results, weights_record
-
-
-
-
-#%%
-# con_col = pd.concat([returns_train.reset_index(drop=True),
-#                 fx_returns_train.reset_index(drop=True), 
-#                 fund_return.reset_index(drop=True)], axis=1)
-
-# return_cov = con_col.cov()
-
-# #%%
-# #cov verður input
-# results_rand, weights_record_rand = pen_random_portfolios(15000, returns_train, fx_returns_train, 
-#                                fund_return,0.4,0.3,0.3, return_cov, 0.03)
-
-#%%
-
-# max_sharpe_idx = np.argmax(results_rand[2])
-# sdp, rp = results_rand[0,max_sharpe_idx], results_rand[1,max_sharpe_idx]
-# max_sharpe_allocation = pd.DataFrame(weights_record_rand[max_sharpe_idx],index=con_col.columns,columns=['allocation'])
-# # max_sharpe_allocation.allocation = [round(i*100,2)for i in max_sharpe_allocation.allocation]
-# max_sharpe_allocation = max_sharpe_allocation.T
-
-# print ("-"*80)
-# print ("Maximum Sharpe Ratio Portfolio Allocation\n")
-# print ("Annualised Return:", round(rp,2))
-# print ("Annualised Volatility:", round(sdp,2))
-# print ("\n")
-# print (max_sharpe_allocation)
-
-
-#%%TEST
-#%%
-
-# omx_test = get_data("LEQ.IC", "24/12/2019", "23/12/2020")
-# omx_returns = np.log(omx_test['adjclose']/ omx_test['adjclose'].shift())
-
-#%%
-# port_returns = returns_test.dot(max_sharpe_allocation.T)
-
-
-# plt.plot(port_returns.cumsum())
-# plt.plot(omx_returns.cumsum())
-# plt.ylabel('RETURN')
-# plt.title('OPT PORTFOLIO VS OMX10 (LEQ)')
-# plt.legend(('Anal Bois', 'shitty market'),
-#            loc='upper left')
-
 
 #%%
 
