@@ -175,8 +175,8 @@ df_iv_cols = df_iv_filt.columns
 df_stock_cols = df_stocks_filt.columns
 df_is_cols = df_is_filt.columns
 
-store_df = pd.DataFrame()
-#%%
+shares_df = pd.DataFrame()
+portfolio_df = pd.DataFrame()
 
 initial_day = test_series.index[0]
 initial_investment = 1e6
@@ -188,11 +188,15 @@ initial_rp = rp
 initial_fund_allocation = initial_investment*initial_portfolio
 initial_nbr_shares = initial_fund_allocation/test_series.loc[initial_day] #nbr of shares
 
-store_df['DATE'] = initial_day
-store_df['FUNDS'] = initial_investment
-store_df['PORTFOLIO'] = max_sharpe_allocation
-store_df['SHARPE'] = sharpe_value
-store_df['NBR_SAHRES'] = initial_nbr_shares
+initial_list = [[initial_day, initial_investment, initial_sharpe]]
+store_df = pd.DataFrame(initial_list, columns=['DATE','FUNDS','SHARPE'])
+
+
+portfolio_df = portfolio_df.append(initial_portfolio)
+portfolio_df['DATE'] = initial_day
+
+shares_df = shares_df.append(initial_nbr_shares)
+shares_df['DATE'] = initial_day
 
 dates = port_returns.index
 rollback_year = 2
@@ -203,30 +207,30 @@ rebalance_threshold = 0.05
 
 temp_day = dates[30]
 
-rebalance_bool = False
+
 
 # i%30
 
 #%%
 print('EVALUATING THE PORTFOLIO')
-for i in range(0,len(dates)):
+for i in range(1,len(dates)):
     rebalance_bool = False
     
     if i%30==0:
         #Check the value of the portfolio
         temp_day = dates[i]
-        temp_value = test_series.loc[temp_day]*initial_nbr_shares
+        temp_value = test_series.loc[temp_day]*shares_df.drop('DATE',axis=1).iloc[-1]
         
-        temp_iv_w = temp_value[df_iv_cols].sum(axis=1)/temp_value.sum(axis=1)
-        temp_stocks_w = temp_value[df_stock_cols].sum(axis=1)/temp_value.sum(axis=1)
-        temp_is_w = temp_value[df_is_cols].sum(axis=1)/temp_value.sum(axis=1)
+        temp_iv_w = temp_value[df_iv_cols].sum()/temp_value.sum()
+        temp_stocks_w = temp_value[df_stock_cols].sum()/temp_value.sum()
+        temp_is_w = temp_value[df_is_cols].sum()/temp_value.sum()
         
         #Check if the initial allocation is skewed
         iv_w_bool = abs(temp_iv_w-w_iv)>rebalance_threshold
         stocks_w_bool = abs(temp_stocks_w-w_stocks)>rebalance_threshold
         is_w_bool = abs(temp_is_w-w_is)>rebalance_threshold
         
-        if (iv_w_bool.values+stocks_w_bool.values+is_w_bool.values)>0:
+        if (iv_w_bool+stocks_w_bool+is_w_bool)>0:
             print('INITIAL WEIGHTS SKEWED, REBALANCE NEEDED')
             print(temp_day)
             rebalance_bool = True
@@ -276,7 +280,7 @@ for i in range(0,len(dates)):
         sharpe_value_roll = results_roll[2,max_sharpe_idx_roll]
         sdp_roll, rp_roll = results_roll[0,max_sharpe_idx_roll], results_roll[1,max_sharpe_idx_roll]
         
-        if (sharpe_value_roll-initial_sharpe)>=0.05:
+        if (sharpe_value_roll-store_df['SHARPE'].iloc[-1])>=0.05:
             print('SHARPE VALUE INCREASED, REBALANCE NEEDED')
             rebalance_bool = True
         
@@ -287,24 +291,29 @@ for i in range(0,len(dates)):
             
             max_sharpe_allocation_roll = max_sharpe_allocation_roll.T
             
+            store_list = [[temp_day, temp_value.sum(), sharpe_value_roll]]
+            store_df = store_df.append(store_list, ignore_index=True)
+            
+            fund_allocation = temp_value.sum()*max_sharpe_allocation_roll
+            nbr_shares = fund_allocation/test_series.loc[temp_day]
+            
+            shares_df = shares_df.append(nbr_shares)
+            shares_df['DATE'] = temp_day
+            
+            portfolio_df = portfolio_df.append(max_sharpe_allocation_roll)
+            portfolio_df['DATE'] = temp_day
+            
 
 
-initial_day = test_series.index[0]
-initial_investment = 1e6
-initial_portfolio = max_sharpe_allocation
-initial_sharpe = sharpe_value
-initial_std = sdp
-initial_rp = rp
 
-initial_fund_allocation = initial_investment*initial_portfolio
-initial_nbr_shares = initial_fund_allocation/test_series.loc[initial_day] #nbr of shares
 
-dates = port_returns.index
-rollback_year = 2
-rollback = timedelta(days=rollback_year*365)
 
-rebalance_freq = 30
-rebalance_threshold = 0.05
+
+
+
+
+
+
 
 
 
