@@ -205,7 +205,7 @@ rollback = timedelta(days=rollback_year*365)
 rebalance_freq = 30
 rebalance_threshold = 0.05
 
-temp_day = dates[30]
+# temp_day = dates[30]
 
 
 
@@ -219,6 +219,7 @@ for i in range(1,len(dates)):
     if i%30==0:
         #Check the value of the portfolio
         temp_day = dates[i]
+        # print(temp_day)
         temp_value = test_series.loc[temp_day]*shares_df.drop('DATE',axis=1).iloc[-1]
         
         temp_iv_w = temp_value[df_iv_cols].sum()/temp_value.sum()
@@ -232,7 +233,6 @@ for i in range(1,len(dates)):
         
         if (iv_w_bool+stocks_w_bool+is_w_bool)>0:
             print('INITIAL WEIGHTS SKEWED, REBALANCE NEEDED')
-            print(temp_day)
             rebalance_bool = True
 
         df_iv_filt.index = pd.to_datetime(df_iv_filt.index)
@@ -285,7 +285,8 @@ for i in range(1,len(dates)):
             rebalance_bool = True
         
         if rebalance_bool:
-            print(i)
+            # print(i)
+            print(temp_day)
             max_sharpe_allocation_roll = pd.DataFrame(weights_roll[max_sharpe_idx_roll],
                                                       index=roll_cov_matrix.columns,columns=['allocation'])
             
@@ -301,7 +302,10 @@ for i in range(1,len(dates)):
             shares_df['DATE'] = temp_day
             
             portfolio_df = portfolio_df.append(max_sharpe_allocation_roll)
-            portfolio_df['DATE'] = temp_day
+            portfolio_df['DATE'] = 
+            
+            # As of now the DATE column is constant, need to fix so it updates and takes in every value not 
+            # only the last value
             
 
 
