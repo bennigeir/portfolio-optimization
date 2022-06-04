@@ -10,7 +10,7 @@ import pandas as pd
 import yfinance as yf
 
 from bs4 import BeautifulSoup
-from firebase import firebase
+#from firebase import firebase
 
 
 def read_firebase(ticker):
