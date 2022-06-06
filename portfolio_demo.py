@@ -9,19 +9,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from get_data import get_omx, get_iv, get_stocks, get_is
-from opt_functions import pen_random_portfolios
+from opt_functions import pen_random_portfolios2
 from datetime import timedelta 
 
 #%% READ DATA
 print('READING DATA')
 
-df_omx = get_omx()
+# df_omx = get_omx()
 
-df_iv = get_iv()
+# df_iv = get_iv()
 
 df_stocks = get_stocks()
 
-df_is = get_is()
+# df_is = get_is()
 
 print ('DATA READING FINISHED')
 
@@ -34,11 +34,11 @@ print ('DATA READING FINISHED')
 # Gæti notað clustering til að velja bréfin og taka bréfið sem er með max shrape
 # value í hverjum cluster
 
-df_iv_filt = df_iv[['ÍV Erlent hlutabréfasafn - Runugildi',
-                          'ÍV Alþjóðlegur hlutabréfasjóður - Runugildi']]
+# df_iv_filt = df_iv[['ÍV Erlent hlutabréfasafn - Runugildi',
+                          # 'ÍV Alþjóðlegur hlutabréfasjóður - Runugildi']]
 
-df_is_filt = df_is[['IS-RIKISSKULDABREF-LONG',
-                    'IS-SERTRYGGD-SKULDABREF']]
+# df_is_filt = df_is[['IS-RIKISSKULDABREF-LONG',
+                    # 'IS-SERTRYGGD-SKULDABREF']]
 
 df_stocks_filt = df_stocks[['MAREL.IC', 'FESTI.IC',
                             'VIS.IC', 'ARION.IC',
@@ -47,25 +47,27 @@ df_stocks_filt = df_stocks[['MAREL.IC', 'FESTI.IC',
 
 #%% DATA PREPERATION
 print('FILTER DATA')
-df_omx_train = df_omx[(df_omx.Date >= '2016-01-01') & (df_omx.Date <= '2018-12-01')]
+# df_omx_train = df_omx[(df_omx.Date >= '2016-01-01') & (df_omx.Date <= '2018-12-01')]
 
-df_iv_train = df_iv_filt.loc['2016-01-01':'2018-12-01']
+# df_iv_train = df_iv_filt.loc['2016-01-01':'2018-12-01']
 
 df_stocks_train = df_stocks_filt.loc['2016-01-01':'2018-12-01']
 
-df_is_train = df_is_filt.loc['2016-01-01':'2018-12-01']
+# df_is_train = df_is_filt.loc['2016-01-01':'2018-12-01']
 
-df_iv_train.index = pd.to_datetime(df_iv_train.index)
+# df_iv_train.index = pd.to_datetime(df_iv_train.index)
 df_stocks_train.index = pd.to_datetime(df_stocks_train.index)
-df_is_train.index = pd.to_datetime(df_is_train.index)
+# df_is_train.index = pd.to_datetime(df_is_train.index)
 
-df_value = pd.merge(df_iv_train, df_stocks_train, on='Date', how='outer')
-df_value = pd.merge(df_value, df_is_train, on='Date', how='outer')
+# df_value = pd.merge(df_iv_train, df_stocks_train, on='Date', how='outer')
+# df_value = pd.merge(df_value, df_is_train, on='Date', how='outer')
+
+df_value = df_stocks_train
 df_value = df_value.sort_index()
 
 
 print('GENERATE RETURNS AND COV MATRIX')
-omx_returns_train = np.log(df_omx_train['OMXI10']/df_omx_train['OMXI10'].shift())
+# omx_returns_train = np.log(df_omx_train['OMXI10']/df_omx_train['OMXI10'].shift())
 
 train_returns = np.log(df_value/df_value.shift())
 
@@ -89,26 +91,27 @@ Risk free rate 3%
 
 """
 
-num_sims = 150000
-w_iv = 0.2
-w_stocks = 0.6
-w_is = 0.2
+num_sims = 25000
+# w_iv = 0.2
+w_stocks = 1.0
+# w_is = 0.2
 
 rf = 0.03
 
-iv_returns_train = train_returns[['ÍV Erlent hlutabréfasafn - Runugildi',
-                          'ÍV Alþjóðlegur hlutabréfasjóður - Runugildi']]
+# iv_returns_train = train_returns[['ÍV Erlent hlutabréfasafn - Runugildi',
+                          # 'ÍV Alþjóðlegur hlutabréfasjóður - Runugildi']]
 
 stocks_returns_train = train_returns[['MAREL.IC', 'FESTI.IC',
                                              'VIS.IC', 'ARION.IC',
                                              'ICEAIR.IC']]
 
-is_return_trains = train_returns[['IS-RIKISSKULDABREF-LONG',
-                                     'IS-SERTRYGGD-SKULDABREF']]
+# is_return_trains = train_returns[['IS-RIKISSKULDABREF-LONG',
+                                     # 'IS-SERTRYGGD-SKULDABREF']]
 
-results_rand, weights_rand = pen_random_portfolios(num_sims, iv_returns_train, 
-                                                   stocks_returns_train, is_return_trains,
-                                                   w_iv, w_stocks, w_is, cov_matrix, rf)
+# results_rand, weights_rand = pen_random_portfolios(num_sims, iv_returns_train, 
+                                                   # stocks_returns_train, is_return_trains,
+                                                   # w_iv, w_stocks, w_is, cov_matrix, rf)
+results_rand, weights_rand = pen_random_portfolios2(num_sims, stocks_returns_train, w_stocks, cov_matrix, rf)
 
 #%%
 cm = plt.cm.get_cmap('RdYlBu')

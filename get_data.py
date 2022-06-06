@@ -10,11 +10,11 @@ import pandas as pd
 import yfinance as yf
 
 from bs4 import BeautifulSoup
-#from firebase import firebase
+# from firebase import firebase
 
 
 def read_firebase(ticker):
-    
+        
     dsn = 'https://portfolio-optimization-33bbe-default-rtdb.firebaseio.com/'
     fb = firebase.FirebaseApplication(dsn, None)
     

@@ -125,6 +125,7 @@ cost function could evaluate if the cost of changing the porfolio will pay
 
 #%%
 
+
 def pen_random_portfolios(num_simul, w1_ret, w2_ret, w3_ret, w1_allo, w2_allo, w3_allo, cov_mat, rf):
     results = np.zeros((3,num_simul))
     weights_record = []
@@ -145,6 +146,26 @@ def pen_random_portfolios(num_simul, w1_ret, w2_ret, w3_ret, w1_allo, w2_allo, w
         w3 = w3 * w3_allo
         
         con_weights = np.concatenate([w1,w2,w3])
+        
+        weights_record.append(con_weights)
+        portfolio_std_dev, portfolio_return = portfolio_annualised_performance(con_weights, mean_returns, cov_matrix)
+        results[0,i] = portfolio_std_dev
+        results[1,i] = portfolio_return
+        results[2,i] = (portfolio_return - rf) / portfolio_std_dev
+    return results, weights_record
+
+def pen_random_portfolios2(num_simul, w1_ret, w1_allo, cov_mat, rf):
+    results = np.zeros((3,num_simul))
+    weights_record = []
+    mean_returns = w1_ret.mean()
+    cov_matrix = cov_mat
+    
+    for i in range(num_simul):
+        w1 = np.random.random(len(w1_ret.columns))
+        w1 /= np.sum(w1)
+        w1 = w1 * w1_allo
+        
+        con_weights = np.concatenate([w1])
         
         weights_record.append(con_weights)
         portfolio_std_dev, portfolio_return = portfolio_annualised_performance(con_weights, mean_returns, cov_matrix)
