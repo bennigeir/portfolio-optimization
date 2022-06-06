@@ -2,3 +2,4 @@ yfinance
 numpy
 plotly
 matplotlib
+yahoo_fin
