@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from opt_functions import pen_random_portfolios2
 
 
-@st.cache()
+@st.cache_data()
 def get_stocks(start_date, end_date, stocks):
 
     stocks_df = pd.DataFrame() 
@@ -31,36 +31,22 @@ def get_stocks(start_date, end_date, stocks):
 
 
 st.sidebar.title("Data Selector")
-# st.sidebar.markdown("Velja tikker:")
 
-stocks = ['BRIM.IC','ICESEA.IC','KVIKA.IC',
-          #'MAREL.IC',
-          'FESTI.IC',#'REGINN.IC',
-          'ARION.IC','VIS.IC','SJOVA.IC','ORIGO.IC','EIM.IC','HAGA.IC','EIK.IC',
-          'REITIR.IC','SIMINN.IC','TM.IC','ICEAIR.IC','SKEL.IC','SYN.IC']
-
-
-# st.write(data)
-# st.line_chart(data)
-
-
+stocks = ['ALVO.IC','AMRQ.IC','ARION.IC','BRIM.IC','EIK.IC','EIM.IC','FESTI.IC','HAGA.IC','HAMP.IC','HEIMAR.IC',
+          'ICEAIR.IC','ICESEA.IC','ISB.IC','ISF.IC','JBTM.IC','KALD.IC','KVIKA.IC','NOVA.IC','CS.IC','OLGERD.IC',
+          'PLAY.IC','REITIR.IC','SIMINN.IC','SJOVA.IC','SKAGI.IC','SKEL.IC','SVN.IC','SYN.IC']
 
 today = datetime.date.today()
 tomorrow = today + datetime.timedelta(days=-90)
 end_date = st.sidebar.date_input('Start date', tomorrow)
 start_date = st.sidebar.date_input('End date', today)
-
-    
-    
 options = st.sidebar.multiselect('Ticker(s):', stocks, stocks)
 
+
 data_load_state = st.text('Loading data...')
-# data = load_data(10000)
 data = get_stocks(start_date, end_date, options)
-# st.write(data)
 data_load_state.text("Done! (using st.cache)")
-    
-# data = get_stocks(start_date, end_date, options)
+
 
 def plot_historical_stock_prices():
     fig = px.line(data, x=data.index, y=data.columns,
