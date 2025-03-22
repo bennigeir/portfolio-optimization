@@ -20,7 +20,7 @@ def get_stocks(start_date, end_date, stocks):
         t = yf.Ticker(s)
         t = t.history(period='max')['Close']
         
-        temp_df = t.to_frame(name=s)
+        temp_df = t.to_frame(name=s).pct_change()
         stocks_df = pd.concat([stocks_df, temp_df], axis=1)
 
     stocks_df.index = pd.to_datetime(stocks_df.index)
@@ -48,7 +48,7 @@ data_load_state.text("Done! (using st.cache)")
 
 def plot_historical_stock_prices():
     fig = px.line(data, x=data.index, y=data.columns,
-                  title='Stock prices')
+                  title='Stock prices - percentage change')
 
     st.plotly_chart(fig)
 
