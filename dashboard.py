@@ -36,17 +36,21 @@ def get_stocks(start_date, end_date, stocks):
         
         temp_df = t.to_frame(name=s)
         stocks_df = pd.concat([stocks_df, temp_df], axis=1)
-    
-    return stocks_df[(stocks_df.index > pd.to_datetime(end_date)) & (stocks_df.index < pd.to_datetime(start_date))]
+
+    stocks_df.index = pd.to_datetime(stocks_df.index)
+    print(type(stocks_df.index))
+    print(type(pd.to_datetime(start_date)))
+
+    return stocks_df[(stocks_df.index.tz_convert(None) > pd.to_datetime(end_date)) & (stocks_df.index.tz_convert(None) < pd.to_datetime(start_date))]
 
 st.sidebar.title("Data Selector")
 # st.sidebar.markdown("Velja tikker:")
 
-stocks = ['BRIM.IC','ICESEA.IC','KVIKA.IC','MAREL.IC','FESTI.IC','REGINN.IC',
+stocks = ['BRIM.IC','ICESEA.IC','KVIKA.IC',
+          #'MAREL.IC',
+          'FESTI.IC',#'REGINN.IC',
           'ARION.IC','VIS.IC','SJOVA.IC','ORIGO.IC','EIM.IC','HAGA.IC','EIK.IC',
           'REITIR.IC','SIMINN.IC','TM.IC','ICEAIR.IC','SKEL.IC','SYN.IC']
-stocks = ['BRIM.IC','ICESEA.IC','KVIKA.IC','MAREL.IC','FESTI.IC','REGINN.IC',
-          'ARION.IC','VIS.IC']
 
 
 # st.write(data)
