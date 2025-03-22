@@ -57,7 +57,7 @@ def plot_monte(options):
     # Calculate returns and covariance
     train_returns = np.log(data / data.shift())
     cov_matrix = train_returns.cov()
-    num_sims = 1000
+    num_sims = 10000
     w_stocks = 1.0
     rf = 0.03
     stocks_returns_train = train_returns[options]
