@@ -39,6 +39,7 @@ tomorrow = today + datetime.timedelta(days=-90)
 end_date = st.sidebar.date_input('Start date', tomorrow)
 start_date = st.sidebar.date_input('End date', today)
 options = st.sidebar.multiselect('Ticker(s):', stocks, stocks)
+num_sims = st.sidebar.number_input('Number of simulations', 10000)
 
 
 data_load_state = st.text('Loading data...')
@@ -57,7 +58,6 @@ def plot_monte(options):
     # Calculate returns and covariance
     train_returns = np.log(data / data.shift())
     cov_matrix = train_returns.cov()
-    num_sims = 10000
     w_stocks = 1.0
     rf = 0.03
     stocks_returns_train = train_returns[options]
