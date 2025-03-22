@@ -3,8 +3,10 @@ import pandas as pd
 import numpy as np
 import yfinance as yf
 import plotly.express as px
+import datetime
+import matplotlib.pyplot as plt
 
-from matplotlib import pyplot as plt
+
 from opt_functions import pen_random_portfolios2
 
 
@@ -41,7 +43,7 @@ stocks = ['BRIM.IC','ICESEA.IC','KVIKA.IC',
 # st.write(data)
 # st.line_chart(data)
 
-import datetime
+
 
 today = datetime.date.today()
 tomorrow = today + datetime.timedelta(days=-90)
@@ -67,55 +69,49 @@ def plot_historical_stock_prices():
     st.plotly_chart(fig)
 
 
-train_returns = np.log(data/data.shift())
-cov_matrix = train_returns.cov()
-num_sims = 25000
-# w_iv = 0.2
-w_stocks = 1.0
-# w_is = 0.2
+def plot_monte():
+    # Calculate returns and covariance
+    train_returns = np.log(data / data.shift())
+    cov_matrix = train_returns.cov()
+    num_sims = 100
+    w_stocks = 1.0
+    rf = 0.03
+    stocks_returns_train = train_returns[stocks]
 
-rf = 0.03
+    # Generate Monte Carlo simulation results
+    results_rand, weights_rand = pen_random_portfolios2(num_sims, stocks_returns_train, w_stocks, cov_matrix, rf)
 
-# iv_returns_train = train_returns[['ÍV Erlent hlutabréfasafn - Runugildi',
-                          # 'ÍV Alþjóðlegur hlutabréfasjóður - Runugildi']]
+    # Create the matplotlib figure
+    fig, ax = plt.subplots()
+    cm = plt.cm.get_cmap('RdYlBu')
+    sc = ax.scatter(results_rand[0], results_rand[1], c=results_rand[2], cmap=cm)
+    plt.colorbar(sc, ax=ax)
+    ax.set_xlabel('RISK')
+    ax.set_ylabel('EXPECTED RETURN')
+    ax.set_title('MONTE CARLO PORTFOLIO SIMULATIONS')
 
-stocks_returns_train = train_returns[stocks]
+    # Identify the portfolio with the maximum Sharpe ratio
+    max_sharpe_idx = np.argmax(results_rand[2])
+    sharpe_value = results_rand[2, max_sharpe_idx]
+    sdp, rp = results_rand[0, max_sharpe_idx], results_rand[1, max_sharpe_idx]
+    ax.scatter(sdp, rp, s=400, marker='x', c='orange')
 
-# is_return_trains = train_returns[['IS-RIKISSKULDABREF-LONG',
-                                     # 'IS-SERTRYGGD-SKULDABREF']]
+    # Display the plot in Streamlit
+    st.pyplot(fig)
 
-# results_rand, weights_rand = pen_random_portfolios(num_sims, iv_returns_train, 
-                                                   # stocks_returns_train, is_return_trains,
-                                                   # w_iv, w_stocks, w_is, cov_matrix, rf)
-results_rand, weights_rand = pen_random_portfolios2(num_sims, stocks_returns_train, w_stocks, cov_matrix, rf)
+    # Prepare the allocation table for the maximum Sharpe ratio portfolio
+    max_sharpe_allocation = pd.DataFrame(
+        weights_rand[max_sharpe_idx],
+        index=cov_matrix.columns,
+        columns=['allocation']
+    ).T
 
-
-
-fig, ax = plt.subplots()
-cm = plt.cm.get_cmap('RdYlBu')
-# sc = plt.scatter(results_rand[0], results_rand[1], c=results_rand[2], cmap=cm)
-sc = px.scatter(x=results_rand[0], y=results_rand[1], color=results_rand[2])
-# plt.colorbar(sc)
-# plt.xlabel('RISK')
-# plt.ylabel('EXPECTED RETURN')
-# plt.title('MONTE CARLO PORTFOLIO SIMULATIONS')
-
-
-max_sharpe_idx = np.argmax(results_rand[2])
-sharpe_value = results_rand[2,max_sharpe_idx]
-sdp, rp = results_rand[0,max_sharpe_idx], results_rand[1,max_sharpe_idx]
-
-# plt.scatter(sdp,rp, s=400, marker='x', c='orange')
-px.scatter(x=np.array([sdp]), y=np.array([rp]))
-
-max_sharpe_allocation = pd.DataFrame(weights_rand[max_sharpe_idx],index=cov_matrix.columns,columns=['allocation'])
-max_sharpe_allocation = max_sharpe_allocation.T
-plt.show()
-
-st.plotly_chart(sc)
-
-
-
+    # Display simulation results
+    st.write("-" * 80)
+    st.write("### Maximum Sharpe Ratio Portfolio Allocation")
+    st.write("**Annualised Return:**", round(rp, 2))
+    st.write("**Annualised Volatility:**", round(sdp, 2))
+    st.dataframe(max_sharpe_allocation)
 
 
 st.title('Icelandic Stock Exchange - Portfolio Optimizer')
@@ -126,3 +122,5 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eu quam sed sa
 """)
 
 plot_historical_stock_prices()
+
+plot_monte()
