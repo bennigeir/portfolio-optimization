@@ -60,14 +60,12 @@ data_load_state.text("Done! (using st.cache)")
     
 # data = get_stocks(start_date, end_date, options)
 
+def plot_historical_stock_prices():
+    fig = px.line(data, x=data.index, y=data.columns,
+                  title='Stock prices')
 
-fig = px.line(data, x=data.index, y=data.columns,
-              title='custom tick labels')
+    st.plotly_chart(fig)
 
-
-# st.line_chart(data)
-st.plotly_chart(fig)
-# st.line_chart(data.pct_change())
 
 train_returns = np.log(data/data.shift())
 cov_matrix = train_returns.cov()
@@ -126,3 +124,5 @@ st.write("")
 st.markdown("""
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eu quam sed sapien rhoncus semper. Vestibulum tempor dolor nibh, a eleifend purus tincidunt eu. Integer ultricies, lectus non varius rutrum, ante libero venenatis justo, sed porta augue justo id mauris. Praesent in neque vitae nisi fringilla vestibulum. Suspendisse pretium ornare finibus. Donec sit amet convallis enim. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas sagittis nulla in sem cursus imperdiet. In ornare erat id eros hendrerit aliquam. Integer suscipit lacus leo. Etiam malesuada, diam commodo porttitor tempus, elit justo pulvinar quam, eu volutpat lacus libero eu elit.
 """)
+
+plot_historical_stock_prices()
