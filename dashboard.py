@@ -31,7 +31,7 @@ def get_stocks(start_date, end_date, stocks):
 st.sidebar.title("Data Selector")
 
 stocks = ['ALVO.IC','AMRQ.IC','ARION.IC','BRIM.IC','EIK.IC','EIM.IC','FESTI.IC','HAGA.IC','HAMP.IC','HEIMAR.IC',
-          'ICEAIR.IC','ICESEA.IC','ISB.IC','ISF.IC','JBTM.IC','KALD.IC','KVIKA.IC','NOVA.IC','CS.IC','OLGERD.IC',
+          'ICEAIR.IC','ICESEA.IC','ISB.IC','ISF.IC','JBTM.IC','KALD.IC','KVIKA.IC','NOVA.IC','OCS.IC','OLGERD.IC',
           'PLAY.IC','REITIR.IC','SIMINN.IC','SJOVA.IC','SKAGI.IC','SKEL.IC','SVN.IC','SYN.IC']
 
 today = datetime.date.today()
