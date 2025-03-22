@@ -39,8 +39,8 @@ tomorrow = today + datetime.timedelta(days=-90)
 end_date = st.sidebar.date_input('Start date', tomorrow)
 start_date = st.sidebar.date_input('End date', today)
 options = st.sidebar.multiselect('Ticker(s):', stocks, stocks)
-num_sims = st.sidebar.number_input('Number of simulations', 10000)
-rf = st.sidebar.number_input('Policy rate', 0.05)
+num_sims = st.sidebar.number_input('Number of simulations', min_value=1000, max_value=100000, value=10000, step=1000)
+rf = st.sidebar.number_input('Policy rate',value=0.05)
 
 
 data_load_state = st.text('Loading data...')
