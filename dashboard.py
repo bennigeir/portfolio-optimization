@@ -72,7 +72,6 @@ def plot_monte(options):
     plt.colorbar(sc, ax=ax)
     ax.set_xlabel('RISK')
     ax.set_ylabel('EXPECTED RETURN')
-    ax.set_title('MONTE CARLO PORTFOLIO SIMULATIONS')
 
     # Identify the portfolio with the maximum Sharpe ratio
     max_sharpe_idx = np.argmax(results_rand[2])
@@ -80,6 +79,9 @@ def plot_monte(options):
     sdp, rp = results_rand[0, max_sharpe_idx], results_rand[1, max_sharpe_idx]
     ax.scatter(sdp, rp, s=400, marker='x', c='orange')
 
+    st.write("-" * 80)
+    st.write("### Monte Carlo Portfolio Simulations")
+    st.write("**Number of simulations:**", num_sims)
     # Display the plot in Streamlit
     st.pyplot(fig)
 
