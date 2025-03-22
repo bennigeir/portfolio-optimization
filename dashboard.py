@@ -24,10 +24,8 @@ def get_stocks(start_date, end_date, stocks):
         stocks_df = pd.concat([stocks_df, temp_df], axis=1)
 
     stocks_df.index = pd.to_datetime(stocks_df.index)
-    print(type(stocks_df.index))
-    print(type(pd.to_datetime(start_date)))
-
-    return stocks_df[(stocks_df.index.tz_convert(None) > pd.to_datetime(end_date)) & (stocks_df.index.tz_convert(None) < pd.to_datetime(start_date))]
+    return stocks_df[(stocks_df.index.tz_convert(None) > pd.to_datetime(end_date))
+                     & (stocks_df.index.tz_convert(None) < pd.to_datetime(start_date))]
 
 
 st.sidebar.title("Data Selector")
@@ -84,6 +82,9 @@ def plot_monte(options):
 
     # Display the plot in Streamlit
     st.pyplot(fig)
+    st.scatter_chart(
+        results_rand[0], results_rand[1]
+    )
 
     # Prepare the allocation table for the maximum Sharpe ratio portfolio
     max_sharpe_allocation = pd.DataFrame(
