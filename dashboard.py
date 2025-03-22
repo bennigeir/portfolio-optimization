@@ -5,23 +5,7 @@ import yfinance as yf
 import plotly.express as px
 
 from matplotlib import pyplot as plt
-from get_data import get_omx, get_iv, get_is
 from opt_functions import pen_random_portfolios2
-from datetime import timedelta 
-
-st.title('Icelandic Stock Exchange')
-
-DATE_COLUMN = 'date/time'
-DATA_URL = ('https://s3-us-west-2.amazonaws.com/'
-            'streamlit-demo-data/uber-raw-data-sep14.csv.gz')
-
-@st.cache
-def load_data(nrows):
-    data = pd.read_csv(DATA_URL, nrows=nrows)
-    lowercase = lambda x: str(x).lower()
-    data.rename(lowercase, axis='columns', inplace=True)
-    data[DATE_COLUMN] = pd.to_datetime(data[DATE_COLUMN])
-    return data
 
 
 @st.cache()
@@ -42,6 +26,7 @@ def get_stocks(start_date, end_date, stocks):
     print(type(pd.to_datetime(start_date)))
 
     return stocks_df[(stocks_df.index.tz_convert(None) > pd.to_datetime(end_date)) & (stocks_df.index.tz_convert(None) < pd.to_datetime(start_date))]
+
 
 st.sidebar.title("Data Selector")
 # st.sidebar.markdown("Velja tikker:")
@@ -130,3 +115,14 @@ max_sharpe_allocation = max_sharpe_allocation.T
 plt.show()
 
 st.plotly_chart(sc)
+
+
+
+
+
+st.title('Icelandic Stock Exchange - Portfolio Optimizer')
+
+st.write("")
+st.markdown("""
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eu quam sed sapien rhoncus semper. Vestibulum tempor dolor nibh, a eleifend purus tincidunt eu. Integer ultricies, lectus non varius rutrum, ante libero venenatis justo, sed porta augue justo id mauris. Praesent in neque vitae nisi fringilla vestibulum. Suspendisse pretium ornare finibus. Donec sit amet convallis enim. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas sagittis nulla in sem cursus imperdiet. In ornare erat id eros hendrerit aliquam. Integer suscipit lacus leo. Etiam malesuada, diam commodo porttitor tempus, elit justo pulvinar quam, eu volutpat lacus libero eu elit.
+""")
