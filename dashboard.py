@@ -83,7 +83,7 @@ def plot_monte(options):
     # Display the plot in Streamlit
     st.pyplot(fig)
     st.scatter_chart(
-        results_rand[0], results_rand[1]
+        results_rand
     )
 
     # Prepare the allocation table for the maximum Sharpe ratio portfolio
