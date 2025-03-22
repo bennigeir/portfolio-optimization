@@ -123,4 +123,4 @@ Lorem ipsum dolor sit amet, consectetur adipiscing elit. Maecenas eu quam sed sa
 
 plot_historical_stock_prices()
 
-plot_monte()
+plot_monte(options)
