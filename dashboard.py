@@ -69,14 +69,14 @@ def plot_historical_stock_prices():
     st.plotly_chart(fig)
 
 
-def plot_monte():
+def plot_monte(options):
     # Calculate returns and covariance
     train_returns = np.log(data / data.shift())
     cov_matrix = train_returns.cov()
     num_sims = 100
     w_stocks = 1.0
     rf = 0.03
-    stocks_returns_train = train_returns[stocks]
+    stocks_returns_train = train_returns[options]
 
     # Generate Monte Carlo simulation results
     results_rand, weights_rand = pen_random_portfolios2(num_sims, stocks_returns_train, w_stocks, cov_matrix, rf)
